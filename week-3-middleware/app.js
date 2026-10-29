@@ -7,14 +7,22 @@ const app = express();
 
 // Assignment 3b and 3c ask you to add middleware in this file.
 
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
-
+// 1. Assign unique IDs to each request
 app.use((req, res, next) => {
   req.requestId = randomUUID();
   res.setHeader("X-Request-Id", req.requestId);
   next();
 });
+
+// 2. Log incoming requests with their request IDs
+app.use((req, res, next) => {
+  console.log(
+    `[${new Date().toString()}]: ${req.method} ${req.path} (${req.requestId})`,
+  );
+  next();
+});
+
+// 3. Set security-related response headers
 app.use((req, res, next) => {
   res.set({
     "X-Content-Type-Options": "nosniff",
@@ -24,13 +32,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  console.log(
-    `[${new Date().toString()}]: ${req.method} ${req.path} (${req.requestId})`,
-  );
-  next();
-});
+// 4. Parse JSON bodies up to 1 MB
+app.use(express.json({ limit: "1mb" }));
 
+// 5. Serve static files from the public directory
+app.use(express.static(path.join(__dirname, "public")));
+
+// 6. Validate the content type of POST requests
 app.use((req, res, next) => {
   if (req.method !== "POST") {
     return next();
@@ -47,7 +55,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/", dogsRouter);// Do not remove this line
+// 7.  Register dog routes, followed by 404 and error handlers
+app.use("/", dogsRouter); // Do not remove this line
 
 app.use((req, res, next) => {
   res.status(404).json({
@@ -77,5 +86,5 @@ if (require.main === module) {
   });
 }
 
+// Export app
 module.exports = app;
-
