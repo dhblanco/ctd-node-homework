@@ -67,14 +67,13 @@ function show(req, res) {
     }
   }
 
-  // Id not found
   return res.status(404).json({
     message: "No task with that ID exists",
   });
 }
 
 function update(req, res) {
-  // Validate the new task updates
+  if (!req.body) req.body = {};
   const { error, value } = patchTaskSchema.validate(req.body, {
     abortEarly: false,
   });
