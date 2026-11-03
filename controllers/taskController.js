@@ -15,7 +15,7 @@ function create(req, res) {
   });
   if (error) {
     return res.status(400).json({
-      message: `Task creation error: ${error}`,
+      message: `Task creation error: ${error.message}`,
     });
   }
 
