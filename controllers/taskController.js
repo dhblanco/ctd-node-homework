@@ -20,9 +20,9 @@ function create(req, res) {
   }
 
   const newTask = {
+    ...value,
     id: taskCounter(),
     userId: global.user_id.email,
-    ...value,
   };
 
   const { userId, ...sanitizedTask } = newTask;
