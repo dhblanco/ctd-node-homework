@@ -9,8 +9,6 @@ const app = express();
 const pool = require("./db/pg-pool");
 
 global.user_id = null;
-global.users = [];
-global.tasks = [];
 
 app.use(express.json());
 app.use("/api", timeRoutes);
