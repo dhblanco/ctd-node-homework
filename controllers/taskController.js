@@ -2,14 +2,6 @@ const pool = require("../db/pg-pool");
 
 const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
 
-const taskCounter = (() => {
-  let lastTaskNumber = 0;
-  return () => {
-    lastTaskNumber += 1;
-    return lastTaskNumber;
-  };
-})();
-
 async function create(req, res) {
   if (!req.body) req.body = {};
 
