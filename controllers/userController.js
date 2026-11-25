@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const util = require("util");
 const scrypt = util.promisify(crypto.scrypt);
 const prisma = require("../db/prisma");
+const DUMMY_HASH = "a20733bcc58fa971f535b282c090c3b0:e36e245b52fcfb07a92c9e23496649de574d1f846f51a57de15c7ffcfb155197fcbe152073195286c3619631da4d486e39ba25ed87a5fba6db3b2e5bd4aa8dcd";
 
 async function register(req, res, next) {
   if (!req.body) req.body = {};
@@ -56,12 +57,11 @@ async function logon(req, res) {
 
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
-    return res.status(401).json({ error: "Invalid email or password" });
-  }
-  const goodCredentials = await comparePassword(password, user.hashedPassword);
+  const storedHash = user ? user.hashedPassword : DUMMY_HASH;
 
-  if (!goodCredentials) {
+  const goodCredentials = await comparePassword(password, storedHash);  // reduce timing difference 
+
+  if (!user || !goodCredentials) {
     return res.status(401).json({ error: "Invalid email or password" });
   }
   global.user_id = user.id;
