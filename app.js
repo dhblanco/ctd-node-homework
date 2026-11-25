@@ -1,3 +1,4 @@
+const prisma = require("./db/prisma");
 const express = require("express");
 const timeRoutes = require("./routes/timeRoutes");
 const userRoutes = require("./routes/userRoutes");
@@ -27,7 +28,7 @@ app.post("/testpost", (req, res) => {
 
 app.get("/health", async (req, res) => {
   try {
-    await pool.query("SELECT 1");
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: "ok", db: "connected" });
   } catch (err) {
     res
@@ -77,8 +78,13 @@ async function shutdown(code = 0) {
       });
     });
     console.log("HTTP server closed.");
+
     await pool.end();
     console.log("PostgreSQL connection pool closed.");
+
+    await prisma.$disconnect();
+    console.log("Prisma disconnected");
+        
   } catch (err) {
     console.error("Error during shutdown:", err);
     code = 1;
