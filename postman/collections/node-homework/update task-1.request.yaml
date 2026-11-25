@@ -1,0 +1,9 @@
+$kind: http-request
+name: update task
+description: ""
+url: http://localhost:3000/api/tasks/3/
+method: PATCH
+body:
+  type: json
+  content: "{ \r\n\"isCompleted\": true \r\n}"
+order: 4000
