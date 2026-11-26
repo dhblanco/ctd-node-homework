@@ -77,10 +77,10 @@ exports.index = async (req, res) => {
   }
 
   const tasks = await prisma.task.findMany({
-    // where: {
-    //   userId: req.user.id, bug
-    //   ...whereClause(req.query),
-    // },
+    where: {
+      userId: global.user_id,
+      //   ...whereClause(req.query), // will repair later
+    },
     select,
     skip: skip,
     take: limit,
@@ -90,7 +90,7 @@ exports.index = async (req, res) => {
     return res.status(404).json({ message: "No tasks found for user" });
   }
   const totalTasks = await prisma.task.count({
-    // where: { userId: req.user.id }, bug
+    where: { userId: global.user_id },
   });
   const pagination = {
     page,
@@ -114,11 +114,10 @@ exports.show = async (req, res) => {
     return res.status(400).json({ message: "Invalid task id." });
   }
 
-  // Use global user_id (set during login/registration)
   const task = await prisma.task.findUnique({
     where: {
       id,
-      // userId: req.user.id, bug
+      userId: global.user_id,
     },
     select: {
       id: true,
@@ -144,7 +143,6 @@ exports.show = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-  // Use global user_id (set during login/registration)
   const { error, value } = taskSchema.validate(req.body);
 
   if (error) return next(error);
@@ -152,7 +150,7 @@ exports.create = async (req, res) => {
   const newTask = await prisma.task.create({
     data: {
       ...value,
-      userId: req.user.id,
+      userId: global.user_id,
     },
     select: {
       id: true,
@@ -179,9 +177,7 @@ exports.update = async (req, res, next) => {
   let task;
   try {
     task = await prisma.task.update({
-      where: { id, 
-        // userId: req.user.id, bug
-       },
+      where: { id, userId: global.user_id },
       data: value,
       select: {
         id: true,
@@ -208,7 +204,7 @@ exports.deleteTask = async (req, res, next) => {
   // let task;
   // try {
   //   task = await prisma.task.delete({
-  //     where: { id, userId: req.user.id },
+  //     where: { id, userId: req.user.id },  // later fix change to userId: global.user_id
   //     select: {
   //       id: true,
   //       title: true,
@@ -245,7 +241,7 @@ exports.bulkCreate = async (req, res, next) => {
       title: value.title,
       isCompleted: value.isCompleted || false,
       priority: value.priority || "medium",
-      userId: req.user.id,
+      userId: req.user.id, // later fix change to userId: global.user_id
     });
   }
 
