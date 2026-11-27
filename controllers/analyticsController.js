@@ -131,11 +131,65 @@ async function getUsersWithStats(req, res) {
     hasPrev: page > 1,
   }; // ... you need to build this object
 
-    // Return users and pagination
-    res.status(200).json({
-      users,
-      pagination,
-    });
+  // Return users and pagination
+  res.status(200).json({
+    users,
+    pagination,
+  });
 }
 
-module.exports = { getUserAnalytics, getUsersWithStats };
+async function searchTasks(req, res) {
+  const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
+
+  // Validate search query
+  if (!searchQuery || searchQuery.trim().length < 2) {
+    return res.status(400).json({
+      error: "Search query must be at least 2 characters long",
+    });
+  }
+
+  // Get limit from query (default to 20)
+  const parsedLimit = parseInt(req.query.limit, 10);
+  const limit =
+    Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+
+  // Construct search patterns outside the query for proper parameterization
+  const searchPattern = `%${searchQuery}%`;
+  const exactMatch = searchQuery;
+  const startsWith = `${searchQuery}%`;
+
+  // Use raw SQL for complex text search with parameterized queries
+  const searchResults = await prisma.$queryRaw`
+  SELECT 
+    t.id,
+    t.title,
+    t.is_completed as "isCompleted",
+    t.priority,
+    t.created_at as "createdAt",
+    t.user_id as "userId",
+    u.name as "user_name"
+  FROM tasks t
+  JOIN users u ON t.user_id = u.id
+  WHERE t.title ILIKE ${searchPattern} 
+     OR u.name ILIKE ${searchPattern}
+  ORDER BY 
+    CASE 
+      WHEN t.title ILIKE ${exactMatch} THEN 1
+      WHEN t.title ILIKE ${startsWith} THEN 2
+      WHEN t.title ILIKE ${searchPattern} THEN 3
+      ELSE 4
+    END,
+    t.created_at DESC
+  LIMIT ${limit}
+`;
+
+  // Return results with query and count
+  // Hint: The test expects results array, query string, and count number
+  res.status(200).json({
+    results: searchResults,
+    query: searchQuery,
+    count: searchResults.length,
+  });
+}
+
+module.exports = { getUserAnalytics, getUsersWithStats, searchTasks };
