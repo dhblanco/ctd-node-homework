@@ -122,7 +122,15 @@ async function getUsersWithStats(req, res) {
 
   // Build pagination object with page, limit, total, pages, hasNext, hasPrev
   // Hint: Use Math.ceil() for pages, compare page * limit with total for hasNext
-  const pagination = // ... you need to build this object
+  const pagination = {
+    page,
+    limit,
+    total: totalUsers,
+    pages: Math.ceil(totalUsers / limit),
+    hasNext: page * limit < totalUsers,
+    hasPrev: page > 1,
+  }; // ... you need to build this object
+
     // Return users and pagination
     res.status(200).json({
       users,
