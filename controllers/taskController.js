@@ -1,6 +1,32 @@
 const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
 const prisma = require("../db/prisma");
 
+const whereClause = (query) => {
+  // helper function whereClause prepares instructions
+  //  for prisma
+  //  about which tasks to retrieve
+  const filters = [{ userId: global.user_id }];
+
+  if (query.find) {
+    filters.push({ title: { contains: query.find, mode: "insensitive" } });
+  }
+  if (query.isCompleted) {
+    const boolToFind = query.isCompleted === "true";
+    filters.push({ isCompleted: boolToFind });
+  }
+  if (query.priority) {
+    filters.push({ priority: query.priority });
+  }
+  if (query.max_date) {
+    filters.push({ createdAt: { lte: new Date(query.max_date) } });
+  }
+  if (query.min_date) {
+    filters.push({ createdAt: { gte: new Date(query.min_date) } });
+  }
+
+  return { AND: filters };
+};
+
 async function create(req, res) {
   if (!req.body) req.body = {};
 
@@ -35,11 +61,29 @@ async function create(req, res) {
 }
 
 async function index(req, res) {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const where = whereClause(req.query);
+
   const tasks = await prisma.task.findMany({
-    where: {
-      userId: global.user_id,
+    where,
+    select: {
+      id: true,
+      title: true,
+      isCompleted: true,
+      priority: true,
+      createdAt: true,
+      User: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
-    select: { title: true, isCompleted: true, id: true },
+    skip: skip,
+    take: limit,
+    orderBy: { createdAt: "desc" },
   });
 
   if (tasks.length === 0) {
@@ -48,7 +92,23 @@ async function index(req, res) {
     });
   }
 
-  return res.status(200).json(tasks);
+  const totalTasks = await prisma.task.count({
+    where,
+  });
+
+  const pagination = {
+    page,
+    limit,
+    total: totalTasks,
+    pages: Math.ceil(totalTasks / limit),
+    hasNext: page * limit < totalTasks,
+    hasPrev: page > 1,
+  };
+
+  return res.status(200).json({
+    tasks,
+    pagination,
+  });
 }
 
 async function show(req, res) {
