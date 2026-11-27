@@ -66,6 +66,7 @@ exports.index = async (req, res) => {
       isCompleted: true,
       priority: true,
       createdAt: true,
+      userId: true, // bug
       User: {
         select: {
           name: true,
