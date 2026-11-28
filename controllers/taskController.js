@@ -45,11 +45,13 @@ async function create(req, res) {
       title: value.title,
       isCompleted: value.isCompleted,
       userId: global.user_id,
+      priority: value.priority,
     },
     select: {
       id: true,
       title: true,
       isCompleted: true,
+      priority: true,
     },
   });
 
@@ -57,6 +59,7 @@ async function create(req, res) {
     id: task.id,
     title: task.title,
     isCompleted: task.isCompleted,
+    priority: task.priority,
   });
 }
 
@@ -174,6 +177,14 @@ async function show(req, res) {
       id: true,
       title: true,
       isCompleted: true,
+      priority: true,
+      createdAt: true,
+      User: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
     },
   });
 
@@ -221,7 +232,7 @@ async function update(req, res, next) {
         id: taskId,
         userId: global.user_id,
       },
-      select: { id: true, title: true, isCompleted: true },
+      select: { id: true, title: true, isCompleted: true, priority: true },
     });
     return res.status(200).json(task);
   } catch (err) {
