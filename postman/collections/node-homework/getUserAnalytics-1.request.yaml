@@ -1,0 +1,5 @@
+$kind: http-request
+name: getUserAnalytics
+url: http://localhost:3000/api/analytics/users/1
+method: GET
+order: 19000

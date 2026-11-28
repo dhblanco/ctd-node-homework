@@ -1,0 +1,8 @@
+$kind: http-request
+name: invalid page
+description: ""
+url: http://localhost:3000/api/tasks?page=1.5
+method: GET
+queryParams:
+  page: "1.5"
+order: 14000

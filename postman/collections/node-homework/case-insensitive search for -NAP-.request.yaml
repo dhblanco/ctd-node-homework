@@ -1,0 +1,8 @@
+$kind: http-request
+name: case-insensitive search for "NAP"
+description: ""
+url: http://localhost:3000/api/tasks?find=NAP
+method: GET
+queryParams:
+  find: NAP
+order: 12000
