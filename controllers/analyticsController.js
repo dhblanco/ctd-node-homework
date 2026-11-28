@@ -157,9 +157,21 @@ async function searchTasks(req, res) {
   const searchQuery = typeof req.query.q === "string" ? req.query.q.trim() : "";
 
   // Validate search query
-  if (!searchQuery || searchQuery.trim().length < 2) {
+  if (!searchQuery) {
     return res.status(400).json({
-      error: "Search query must be at least 2 characters long",
+      error: "Invalid search: Query is empty. Please enter a valid query.",
+    });
+  }
+  if (searchQuery.length < 2) {
+    return res.status(400).json({
+      error:
+        "Invalid search: Please ensure query contains at least 2 characters.",
+    });
+  }
+  if (/^[%_]+$/.test(searchQuery)) {
+    return res.status(400).json({
+      error:
+        "Invalid search: Query too broad. Please enter a word, number, or phrase to narrow your results.",
     });
   }
 
