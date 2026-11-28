@@ -1,0 +1,7 @@
+$kind: http-request
+name: invalid SQL query "%%"
+url: http://localhost:3000/api/analytics/tasks/search?q=%%
+method: GET
+queryParams:
+  q: "%%"
+order: 20000

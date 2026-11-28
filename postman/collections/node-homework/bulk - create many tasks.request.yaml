@@ -1,0 +1,30 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/tasks/bulk
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"tasks\": [\r
+
+    \    {\r
+
+    \      \"title\": \"Stretch in the sun again\",\r
+
+    \      \"isCompleted\": false\r
+
+    \    },\r
+
+    \    {\r
+
+    \      \"title\": \"Search for toys one more time\",\r
+
+    \      \"isCompleted\": false\r
+
+    \    }\r
+
+    \  ]\r
+
+    }"
+order: 5230

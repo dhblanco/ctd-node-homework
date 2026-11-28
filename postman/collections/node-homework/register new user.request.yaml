@@ -5,9 +5,9 @@ body:
   type: json
   content: "{ \r
 
-    \    \"name\": \"No One\",\r
+    \    \"name\": \"Another Cat\",\r
 
-    \    \"email\": \"no1@gmail.com\",\r
+    \    \"email\": \"another1@meow.com\",\r
 
     \"password\": \"isthisastrongtestPassword123?\" \r
 

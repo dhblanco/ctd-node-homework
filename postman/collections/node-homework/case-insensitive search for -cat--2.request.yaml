@@ -1,0 +1,8 @@
+$kind: http-request
+name: case-insensitive search for "cat"
+description: ""
+url: http://localhost:3000/api/tasks?find=cat
+method: GET
+queryParams:
+  find: cat
+order: 11000

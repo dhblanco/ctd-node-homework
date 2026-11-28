@@ -1,0 +1,5 @@
+$kind: http-request
+name: getUsersWithStats
+url: http://localhost:3000/api/analytics/users
+method: GET
+order: 17000

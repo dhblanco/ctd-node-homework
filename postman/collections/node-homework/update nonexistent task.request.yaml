@@ -1,0 +1,8 @@
+$kind: http-request
+description: ""
+url: http://localhost:3000/api/tasks/999999
+method: PATCH
+body:
+  type: json
+  content: "{ \r\n\"isCompleted\": true \r\n}"
+order: 10000

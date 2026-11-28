@@ -1,0 +1,7 @@
+$kind: http-request
+name: searchTasks with SQL query "cat"
+url: http://localhost:3000/api/analytics/tasks/search?q=cat
+method: GET
+queryParams:
+  q: cat
+order: 21000
