@@ -110,9 +110,24 @@ async function bulkCreate(req, res, next) {
 }
 
 async function index(req, res) {
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const rawPage = req.query.page;
+  const page = rawPage === undefined ? 1 : Number(rawPage);
+  if (!Number.isInteger(page) || page < 1) {
+    return res.status(400).json({
+      message: "Page must be a positive integer",
+    });
+  }
+
+  const rawLimit = req.query.limit;
+  const limit = rawLimit === undefined ? 10 : Number(rawLimit);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return res.status(400).json({
+      message: "Limit must be an integer between 1 and 100",
+    });
+  }
+
   const skip = (page - 1) * limit;
+
   const where = whereClause(req.query);
 
   const tasks = await prisma.task.findMany({

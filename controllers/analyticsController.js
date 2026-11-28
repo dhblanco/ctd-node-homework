@@ -7,9 +7,9 @@ async function getUserAnalytics(req, res) {
   // :id is a parameter available through req.params
 
   // Parse and validate user ID
-  const userId = parseInt(req.params.id);
+  const userId = Number(req.params.id);
   // Check if valid ID #
-  if (isNaN(userId)) {
+  if (!Number.isInteger(userId) || userId < 1) {
     return res.status(400).json({
       message: "Not a valid user ID",
     });
@@ -83,8 +83,23 @@ async function getUsersWithStats(req, res) {
 
   // Parse pagination parameters (similar to how you did in the task index method in section 3 above)
   // Hint: Parse page and limit from req.query, calculate skip
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 10;
+  const rawPage = req.query.page;
+  const page = rawPage === undefined ? 1 : Number(rawPage);
+
+  if (!Number.isInteger(page) || page < 1) {
+    return res.status(400).json({
+      message: "Page must be a positive integer",
+    });
+  }
+
+  const rawLimit = req.query.limit;
+  const limit = rawLimit === undefined ? 10 : Number(rawLimit);
+
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return res.status(400).json({
+      message: "Limit must be an integer between 1 and 100",
+    });
+  }
   const skip = (page - 1) * limit;
 
   // Get users with task counts using _count aggregation
@@ -149,9 +164,13 @@ async function searchTasks(req, res) {
   }
 
   // Get limit from query (default to 20)
-  const parsedLimit = parseInt(req.query.limit, 10);
-  const limit =
-    Number.isInteger(parsedLimit) && parsedLimit > 0 ? parsedLimit : 20;
+  const rawLimit = req.query.limit;
+  const limit = rawLimit === undefined ? 20 : Number(rawLimit);
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    return res.status(400).json({
+      message: "Limit must be an integer between 1 and 100",
+    });
+  }
 
   // Construct search patterns outside the query for proper parameterization
   const searchPattern = `%${searchQuery}%`;
